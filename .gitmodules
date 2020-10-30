@@ -1,0 +1,3 @@
+[submodule "deps/Comrade"]
+	path = deps/Comrade
+	url = https://github.com/comrade-project/Comrade.git
