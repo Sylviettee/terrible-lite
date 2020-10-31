@@ -5,3 +5,4 @@ deps/*
 !package.lua
 db.sqlite
 !commands/edit/sandbox.lua
+doc/ldoc.css

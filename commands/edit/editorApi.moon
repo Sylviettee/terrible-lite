@@ -15,6 +15,9 @@ Editor.__init = (engine, prompt) =>
 
   @_commands = {}
 
+--- Register a command, there is a max of 15 commands!
+-- @tparam string name The name of the command
+-- @tparam function fn The function to run the command
 Editor.addCommand = (name, fn) =>
   assert type(name) == "string", "A command must have a name as a string"
   assert type(fn) == "function", "A command must have a callback fn as a function"
@@ -25,9 +28,13 @@ Editor.addCommand = (name, fn) =>
     -- Assume command spam to steal memory
     coroutine.yield 'Max commands is 15'
 
-Editor.reject = (name) =>
-  error name -- Command state should handle the error
+--- Alias for error
+-- @tparam string msg The message to send
+Editor.reject = (msg) =>
+  error msg -- Command state should handle the error
 
+--- Edit the current line of the editor
+-- @tparam string text What to replace the line with
 Editor.editCurrentLine = (text) =>
   assert text, 'A text argument is required'
   if text\match 'lua is bad'
@@ -35,20 +42,21 @@ Editor.editCurrentLine = (text) =>
 
   @_engine\editLine text -- Spamming doesn't cause re-render
 
+genEnv = (prompt) -> {
+  {
+    addCommand: editor.addCommand
+    reject: editor.reject
+    editCurrentLine: editor.editCurrentLine
+  }
+}
+
 (engine, prompt, code) ->
   co = coroutine.create () ->
     editor = Editor engine, prompt
 
     protect(code, {
       env: {
-        editor: {
-          addCommand: (...) =>
-            editor\addCommand ...
-          reject: (...) =>
-            editor\reject ...
-          editCurrentLine: (...) =>
-            editor\editCurrentLine ...
-        }
+        editor: getEnv editor
         edit: (text) ->
           editor\editCurrentLine text
       }
@@ -72,14 +80,7 @@ Editor.editCurrentLine = (text) =>
       newFn = () -> fn args
       protect(newFn, {
         env: {
-          editor: {
-            addCommand: (...) =>
-              editor\addCommand ...
-            reject: (...) =>
-              editor\reject ...
-            editCurrentLine: (...) =>
-              editor\editCurrentLine ...
-          }
+          editor: getEnv editor
           edit: (text) ->
             editor\editCurrentLine text
           :args
