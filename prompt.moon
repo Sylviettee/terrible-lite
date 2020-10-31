@@ -32,6 +32,7 @@ class
 
     @stage = 0
     @data = {}
+    @sent = {}
 
     @message = nil
 
@@ -87,7 +88,11 @@ class
 
   --- Send a message in the prompt channel
   reply: (content) =>
-    @channel\send content
+    msg = @channel\send content
+
+    table.insert @sent, msg
+
+    msg
   
   --- Save a value into the prompt
   save: (key,value) =>
@@ -113,34 +118,23 @@ class
     if type(message) == 'function'
       message = message!
 
+    if message == 'now'
+      return @handle!
+
     unless @message
       return @channel\send 'Error: No tasks found' unless @tasks[@stage]
       if @embed
         @message = message\send @channel
       else 
         @message = @channel\send message
+      table.insert @sent, @message
     else
       return @channel\send 'Error: Prompt out of tasks' unless @tasks[@stage]
-      if message == 'check'
-        desc = ""
-        for i,v in pairs @data
-          desc = "#{desc}\n#{i}: #{v}" unless i\sub(0,1) == '_'
 
-        if @embed
-          correct = embed!
-          correct\setTitle 'Is this correct? [y/yes | n/no]'
-          correct\setDescription desc
-          correct\setColor 0xee5253
-
-          correct\send @channel
-        else
-          @message\reply "Is this correct? [y/yes | n/no]\n\n#{desc}"
-      elseif message == 'now'
-        @handle!
-      elseif message ~= 'none'
+      if message ~= 'none'
         if @embed 
           unless message.render
-            message\send @channel
+            table.insert @sent, message\send @channel
           else
             local get
 
@@ -157,23 +151,9 @@ class
               timeout: @timeout
             })
 
-            rendered\send @channel
+            table.insert @sent, rendered\send @channel
         else
           if @useEdits
             @message\setContent message
           else
-            @message\reply message
-
---- Prompt global actions
--- @param check A function that prompts the user to check their input data, to make data private prefix it with an underscore
--- @table globalActions
-
---- Prompt configuration
--- @tparam boolean embed
--- @tparam task[] tasks
--- @table config
-
---- A prompt task
--- @tparam string|table message The message of the task, if the embed flag is set, message has to be embed
--- @tparam string|function action If its a string, it has to be in global actions. Calls function with message content, prompt, and message object
--- @table task
+            table.insert @sent, @message\reply message

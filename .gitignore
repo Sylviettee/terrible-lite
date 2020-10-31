@@ -2,3 +2,6 @@ logs
 .env
 deps/*
 *.lua
+!package.lua
+db.sqlite
+!commands/edit/sandbox.lua

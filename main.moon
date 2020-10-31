@@ -1,23 +1,26 @@
-import Client, dotenv from require 'Comrade'
-import readdirSync from require 'fs'
+import dotenv from require 'Comrade'
+import readdirSync, lstatSync from require 'fs'
 
 dotenv.config!
 
 assert process.env.TOKEN, 'No token located in env!'
 
+require './database'
+
+Client = require './client'
+
 bot = Client process.env.TOKEN, {
-  prefix: '>',
+  prefix: 'sd;',
   logFile: './logs/discordia.log',
   gatewayFile: './logs/gateway.json'
 }
 
-bot\on 'ready', () ->
-  bot\removeCommand 'help'
-
-  for _, path in pairs readdirSync './commands'
-    if path\endswith '.lua'
-      bot\addCommand require "./commands/#{path\sub 0, #path - 4}"
+for _, path in pairs readdirSync './commands'
+  if path\endswith '.lua'
+    bot\addCommand require "./commands/#{path\sub 0, #path - 4}"
+  elseif lstatSync("./commands/#{path}").type == 'directory'
+    bot\addCommand require "./commands/#{path}"
 
 bot\login {
-  name: "terrible lite!"
+  name: "#{bot.prefix}edit | Chaotic Lite"
 }
