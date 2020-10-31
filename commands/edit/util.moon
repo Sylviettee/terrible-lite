@@ -5,9 +5,9 @@
     prompt\reply "You have #{engine.modules and #engine.modules or 0} modules enabled"
 
   mod: (engine, _, _, prompt) ->
-    engine.modules and table.insert engine.modules, engine.text
-
-    unless engine.modules
+    if engine.modules
+      table.insert engine.modules, engine.text
+    else
       engine.modules = {engine.text}
 
     prompt\reply "Saved module!"

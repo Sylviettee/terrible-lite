@@ -7,7 +7,8 @@ class help extends Command
     @description = 'view all the commands or get information on commands'
     @example = {
       'help help',
-      'help all'
+      'help all',
+      'help edit'
     }
     @usage = '<command name>'
 

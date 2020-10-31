@@ -42,13 +42,12 @@ Editor.editCurrentLine = (text) =>
 
   @_engine\editLine text -- Spamming doesn't cause re-render
 
-genEnv = (prompt) -> {
+getEnv = (editor) ->
   {
-    addCommand: editor.addCommand
-    reject: editor.reject
-    editCurrentLine: editor.editCurrentLine
+    addCommand: (...) => editor\addCommand ...
+    reject: (...) => editor\reject ...
+    editCurrentLine: (...) => editor\editCurrentLine ...
   }
-}
 
 (engine, prompt, code) ->
   co = coroutine.create () ->
