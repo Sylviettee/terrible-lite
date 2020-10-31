@@ -60,15 +60,14 @@ Editor.editCurrentLine = (text) =>
   succ, editor = coroutine.resume co
 
   unless succ
-    prompt\reply "Unable to fully load config: #{editor}"
+    prompt\reply "Unable to fully load config: #{editor}"\sub 0, 2000
     return nil
 
   if type(editor) == 'string'
-    prompt\reply "Sandbox killed for: #{editor}, setting to default config!"
+    prompt\reply "Sandbox killed for: #{editor}, setting to default config!"\sub 0, 2000
     return nil
 
   editor[3], (fn, args) -> -- Reuse sandbox
-    p args
     pcall () ->
       newFn = () -> fn args
       protect(newFn, {

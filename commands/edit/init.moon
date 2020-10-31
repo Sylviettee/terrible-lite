@@ -126,10 +126,10 @@ Terrible lite is a terrible text editor which can evaluate code and write it.
             custom = prompt\get 'custom'
             run = prompt\get 'runner'
 
-            if custom[cmd\lower!]
+            if custom and custom[cmd\lower!]
               succ, err = run custom[cmd\lower!], args
               unless succ
-                prompt\reply "Failed to run custom command: #{err}"
+                prompt\reply "Failed to run custom command: #{err}"\sub 0, 2000
               return prompt\redo!
 
             if cmds[cmd\lower!]

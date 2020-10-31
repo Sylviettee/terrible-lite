@@ -27,7 +27,7 @@
       if line\match query
         table.insert lines, num
 
-    prompt\reply "```lua\n-- Location results --\n#{table.concat lines, ',\n'}\n```"
+    prompt\reply "```lua\n-- Location results --\n#{table.concat lines, ',\n'}\n```"\sub 0, 2000
 
   exit: (_, _, args, prompt) ->
     prompt\reply 'Exiting editor!'
@@ -47,6 +47,9 @@
 
   new: (engine, _, args, prompt) ->
     if tonumber args[1]
+      if tonumber args[1] > 1000
+        return prompt\reply "Only 1000 lines at a time!"
+
       for i = 1, tonumber args[1]
         engine\newLine!
       prompt\reply "Created #{tonumber args[1]} new lines!"
