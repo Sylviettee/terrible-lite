@@ -107,6 +107,7 @@ Terrible lite is a terrible text editor which can evaluate code and write it.
 -------------------------
 
 -- Powered by: http://github.com/comrade-project/comrade --
+-- Source: https://github.com/SovietKitsune/terrible-lite --
 
 #{engine\render!}
 ```"

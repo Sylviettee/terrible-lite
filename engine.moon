@@ -1,11 +1,27 @@
 -- Rendering engine for terminal text editor
 
-split = (str, sep = '%s') ->
-    t = {}
+split = (str, delim = '%s') ->
+  ret = {}
+  return ret unless str
+
+  if not delim or delim == ''
+    for c in string.gmatch str, '.'
+      table.insert ret, c
+
+    return ret
   
-    for part in string.gmatch str, "([^#{sep}]+)"
-      table.insert t, part
-    t
+  n = 1
+
+  while true
+    i, j = string.find str, delim, n
+    break unless i
+
+    table.insert ret, string.sub str, n, i - 1
+    n = j + 1
+  
+  table.insert ret, string.sub str, n
+
+  ret
 
 rep = (str, count) ->
   newStr = ''
@@ -23,7 +39,7 @@ getSpaces = (max, current) ->
 
 class Engine
   new: (text, conf = {}) =>
-    @text = text
+    @lines = split text, '\n'
 
     @draw = (txt) => 
       if conf.draw
@@ -31,72 +47,72 @@ class Engine
       
       print '\27[2J'
       print txt
-    
+
     @pos = 1
+    @text = ""
 
   line: =>
     -- Line text
-    splitted = split @text, '\n'
-
+    --  p @lines
     new = ''
 
-    for i, v in pairs splitted
-      new = "#{new}#{i}#{rep ' ', (#tostring #splitted) - #tostring i} |#{i == @pos and '>' or ' '} #{v}\n"
-    
+    for i, v in pairs @lines
+      new = "#{new}#{i}#{rep ' ', (#tostring #@lines) - #tostring i} |#{i == @pos and '>' or ' '} #{v}\n"
+
     new
 
   render: =>
+    @text = table.concat(@lines, '\n')\trim!
+
     @draw @line @text
 
   down: =>
-    @pos = clamp @pos + 1, 1, (#split @text, '\n') + 1
+    @pos = clamp @pos + 1, 1, (#@lines) + 1
     @render!
 
   up: =>
-    @pos = clamp @pos - 1, 1, (#split @text, '\n') + 1
+    @pos = clamp @pos - 1, 1, (#@lines) + 1
     @render!
 
   editLine: (new) =>
-    splitted = split @text, '\n'
-
-    splitted[@pos] = new
-
-    @text = table.concat splitted, '\n'
+    @lines[@pos] = new
 
     @render!
   
   newLine: =>
-    splitted = split @text, '\n'
+    if @lines[@pos]
+      @lines[@pos] ..= '\n'
 
-    if splitted[@pos]
-      splitted[@pos] ..= "\n\r"
+      -- Reformat the lines
+      @lines = split table.concat(@lines, '\n'), '\n'
     else
-      splitted[@pos] = "\n\r"
-
-    @text = table.concat splitted, '\n'
+      @lines[@pos] = ''
 
     @render!
 
 draw = (text) =>
-  linesToRender = {}
 
-  splitted = split @text, '\n'
+  splitted = @lines
 
-  starting = clamp @pos - 5, 0, #splitted
+  starting = clamp @pos - 5, 1, #splitted
 
-  for i = starting, clamp @pos + 5, 0, #splitted + 1
-    table.insert linesToRender, splitted[i]
-  
-  new = ''
+  linesToRender = table.slice splitted, starting, clamp @pos + 5, 1, #splitted
 
-  for i, v in pairs linesToRender
+  new = {}
+
+  for i = 0, #linesToRender - 1
+    v = linesToRender[i + 1]
+
     maxNum = #splitted
     currentNum = i + starting
     spaces = getSpaces maxNum, currentNum
 
-    new = "#{new}| #{currentNum}#{rep ' ', spaces} |#{currentNum == @pos and '>' or ' '} #{v}#{i != #linesToRender and '\n' or ''}"
+    table.insert new, "| #{currentNum}#{rep ' ', spaces} |#{currentNum == @pos and '>' or ' '} #{v}"
 
-  "| #{rep '=', getSpaces(#splitted, @pos) + #tostring(@pos)} |\n| #{@pos}#{rep ' ', getSpaces(#splitted, @pos) + 1}|\n| #{rep '=', getSpaces(#splitted, @pos) + #tostring(@pos)} |\n#{new}"
+  "| #{rep '=', getSpaces(#splitted, @pos) + #tostring(@pos)} |
+| #{@pos}#{rep ' ', getSpaces(#splitted, @pos) + 1}|
+| #{rep '=', getSpaces(#splitted, @pos) + #tostring(@pos)} |
+#{table.concat new, '\n'}"
 
 print_draw = (...) ->
   print '\27[2J'

@@ -63,7 +63,7 @@ eval = (code, lang) ->
   body
 
 expand = (engine) ->
-  table.concat((engine.modules and engine.modules) or {}, "\n") .. "\n#{engine.text}"
+  (table.concat((engine.modules and engine.modules) or {}, "\n") .. "\n#{engine.text}")\trim!
 
 {
   eval: (engine, _, args, prompt) ->

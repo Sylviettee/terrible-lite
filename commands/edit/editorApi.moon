@@ -42,11 +42,32 @@ Editor.editCurrentLine = (text) =>
 
   @_engine\editLine text -- Spamming doesn't cause re-render
 
+--- Change the position of the cursor
+-- @tparam number pos The position to move the cursor
+Editor.editCursorPosition = (pos) =>
+  assert type(pos) == 'number', 'The position must be a number!'
+  assert pos > 1, 'The position must be greater then 1!'
+  assert pos <= #@_engine.text\split('\n'), 'The position must be less then the total lines!'
+
+  @_engine.pos = pos
+
+--- Get the text from the editor
+-- @treturn number text
+Editor.getText = =>
+  @_engine.text
+
+--- Get the current cursor position
+-- @treturn number position
+Editor.getCursorPosition = =>
+  @_engine.pos
+
 getEnv = (editor) ->
   {
-    addCommand: (...) => editor\addCommand ...
-    reject: (...) => editor\reject ...
-    editCurrentLine: (...) => editor\editCurrentLine ...
+    addCommand: (_, ...) -> editor\addCommand ...
+    reject: (_, ...) -> editor\reject ...
+    editCurrentLine: (_, ...) -> editor\editCurrentLine ...
+    getText: (_, ...) -> editor\getText ...
+    getCursorPosition: (_, ...) -> editor\getCursorPosition ...
   }
 
 (engine, prompt, code) ->
@@ -59,7 +80,6 @@ getEnv = (editor) ->
         edit: (text) ->
           editor\editCurrentLine text
       }
-      quota: 10000
     })!
 
     coroutine.yield editor
@@ -84,6 +104,5 @@ getEnv = (editor) ->
             editor\editCurrentLine text
           :args
         }
-        quota: 10000
       })!
 

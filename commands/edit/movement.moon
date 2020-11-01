@@ -1,7 +1,7 @@
 {
   up: (engine, _, args, prompt) ->
     if tonumber args[1]
-      for i = 1, tonumber args[1]
+      for _ = 1, tonumber args[1]
         engine\up!
       prompt\reply "Went up #{tonumber args[1]} lines!"
     else
@@ -10,7 +10,7 @@
 
   down: (engine, _, args, prompt) ->
     if tonumber args[1]
-      for i = 1, tonumber args[1]
+      for _ = 1, tonumber args[1]
         engine\down!
       prompt\reply "Went down #{tonumber args[1]} lines!"
     else
@@ -23,8 +23,11 @@
     unless line
       prompt\reply 'Invalid number!'
     
-    if line > #engine.text\split '\n'
-      prompt\reply "Out of range [1 - #{#engine.text\split '\n'}]!"
+    if line > #engine.lines
+      return prompt\reply "Out of range [1 - #{#engine.lines}]!"
+
+    if line < 1
+      return prompt\reply "Out of range [1 - #{#engine.lines}]!"
 
     engine.pos = line
     return prompt\redo!

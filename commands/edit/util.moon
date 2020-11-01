@@ -47,12 +47,13 @@
 
   new: (engine, _, args, prompt) ->
     if tonumber args[1]
-      if tonumber args[1] > 1000
+      lines = tonumber args[1]
+      if lines > 1000
         return prompt\reply "Only 1000 lines at a time!"
 
-      for i = 1, tonumber args[1]
+      for i = 1, lines
         engine\newLine!
-      prompt\reply "Created #{tonumber args[1]} new lines!"
+      prompt\reply "Created #{lines} new lines!"
     else
       engine\newLine!
     return prompt\redo!
