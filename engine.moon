@@ -77,6 +77,9 @@ class Engine
   editLine: (new) =>
     @lines[@pos] = new
 
+    -- Reformat lines
+    @lines = split table.concat(@lines, '\n'), '\n'
+
     @render!
   
   newLine: =>
